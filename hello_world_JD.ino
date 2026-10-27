@@ -39,3 +39,5 @@ void loop() {
     digitalWrite(10, LOW);
   }
 }
+
+// Edited by Thomas Mazur
