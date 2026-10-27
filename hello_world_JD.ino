@@ -1,4 +1,5 @@
 // microcontroller hello world
+//Thomas Mazur
 
 const int BUTTON_PIN = 9;   // button connects pin 2 to GND
 const int LED_PIN = 8;      // LED (with resistor) on pin 8
