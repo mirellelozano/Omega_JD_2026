@@ -1,4 +1,4 @@
-// microcontroller hello world
+// microcontroller hello world - Mirelle Lozano
 //Thomas Mazur
 
 const int BUTTON_PIN = 9;   // button connects pin 2 to GND
