@@ -1,4 +1,5 @@
-// microcontroller hello world
+// microcontroller hello world - Mirelle Lozano
+//Thomas Mazur
 
 const int BUTTON_PIN = 9;   // button connects pin 2 to GND
 const int LED_PIN = 8;      // LED (with resistor) on pin 8
@@ -29,3 +30,6 @@ void loop() {
     digitalWrite(LED_PIN, LOW); // LED off
   }
 }
+
+
+// Lucas Bucht
