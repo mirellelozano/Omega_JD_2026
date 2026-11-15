@@ -1,0 +1,154 @@
+/*
+  BOP-IT 
+  Follows our pseudo-code 
+*/
+
+#include <SPI.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_ST7796S_kbv.h>
+
+// Pins + Settings
+
+// Pins
+const uint8_t PIN_FIRE  = 2;    // button press
+const uint8_t PIN_COIN  = 4;    // placeholder for limit switch
+const uint8_t PIN_JOY_X = A1;   // joystick
+#define TFT_RST 8               // display reset
+#define TFT_DC  9               // display rs
+#define TFT_CS  10              // display cs
+// TO DO: Audio pins 
+
+// Settings
+const uint8_t  MAX_SCORE = 99;      // reaching this = win
+const uint16_t START_MS  = 5000;    // time allowed for the first command (5000 ms or 5 s)
+const uint16_t MIN_MS    = 1000;    // time allowed for the last command
+const uint8_t  DEBOUNCE_MS = 25;    // ignore switch bounce shorter than this (1000 ms or 1 s)
+
+// 1 = game only ever asks for FIRE (so it's playable with just the one button).
+// 0 = full game using fire, coin and joystick.
+#define TEST_ONE_BUTTON 1 // switch for testing
+
+// Game states + commands 
+enum State   { IDLE, PLAYING, GAME_OVER };
+enum Command { CMD_NONE, CMD_COIN, CMD_LEFT, CMD_RIGHT, CMD_FIRE };
+
+// Game variables
+State    state = IDLE;
+Command  currentCmd = CMD_NONE;   // the command the player must do right now
+uint8_t  score = 0;
+uint16_t windowMs = START_MS;     // current time limit
+uint32_t cmdStart = 0;            // millis() when the current command was announced
+
+
+//  FIRE BUTTON 
+
+// Set up
+void fireInit() 
+{
+  pinMode(PIN_FIRE, INPUT_PULLUP); // pressed = low
+}
+
+// Returns true ONCE, at the moment the button goes down (not while it's held).
+bool firePressed() 
+{
+  static bool     wasDown = false; // was it down?
+  static uint32_t lastChange = 0; // last ime of change
+  bool isDown = (digitalRead(PIN_FIRE) == LOW); // true if button pressed
+
+  // ignore if nothing changed or if it bounces
+  if (isDown == wasDown || millis() - lastChange < DEBOUNCE_MS) 
+  {
+    return false;
+  }
+
+  lastChange = millis(); // saves when change happened
+  wasDown = isDown; // save new state
+  return isDown; // true on press, false on release
+}
+
+//  COIN SWITCH  (same idea as the fire button) - assumed wired as normally open
+
+void coinInit() 
+{
+  pinMode(PIN_COIN, INPUT_PULLUP);
+}
+
+bool coinPressed() 
+{
+  static bool     wasDown = false;
+  static uint32_t lastChange = 0;
+  bool isDown = (digitalRead(PIN_COIN) == LOW); // == HIGH in case its wired as normally closed
+
+  if (isDown == wasDown || millis() - lastChange < DEBOUNCE_MS)
+  {
+    return false;
+  }
+
+  lastChange = millis();
+  wasDown = isDown;
+  return isDown;
+}
+
+// JOYSTICK
+
+// guessing based off the fact we go from 0V to 3.3V
+const int JOY_LEFT_BELOW  = 170;   // below this = pushed left 
+const int JOY_RIGHT_ABOVE = 500;   // above this = pushed right
+
+// returns CMD_LEFT or CMD_RIGHT ONCE when the stick leaves center, otherwise CMD_NONE.
+// if left/right turn out backwards, swap CMD_LEFT and CMD_RIGHT here btw
+Command joystickMove() 
+{
+  static int8_t lastDir = 0; // -1 = left, 0 = center, 1 = right, similar to wasDown in previous
+  int x = analogRead(PIN_JOY_X); // measure stick currently
+
+  int8_t dir; // will hold -1 (left), 0 (center) or 1 (right)
+
+  if (x < JOY_LEFT_BELOW) 
+  { // pushed left
+    dir = -1;
+  } 
+  else if (x > JOY_RIGHT_ABOVE) 
+  { // pushed right
+    dir = 1;
+  } 
+  else 
+  { // stick is centered
+    dir = 0;
+  }
+
+  Command result = CMD_NONE; // assume nothing happened
+
+  if (dir != lastDir) 
+  { // only react when the direction actually changes
+    if (dir == -1) // -1 == left
+    {
+      result = CMD_LEFT;
+    }
+    if (dir ==  1) // 1 == right
+    {
+      result = CMD_RIGHT;
+    }
+
+    lastDir = dir; // remember new (if there was a change)
+  }
+  return result; // left, right, center
+}
+
+//  SCREEN
+
+Adafruit_ST7796S_kbv tft(TFT_CS, TFT_DC, TFT_RST);
+
+//insert code
+
+//  AUDIO
+
+// insert code
+
+// GAME LOGIC
+
+// insert code
+
+// setup (probably gonna use case statements)
+
+// insert code
