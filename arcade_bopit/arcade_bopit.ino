@@ -137,7 +137,71 @@ Command joystickMove()
 
 //  SCREEN
 
-Adafruit_ST7796S_kbv tft(TFT_CS, TFT_DC, TFT_RST);
+Adafruit_ST7796S_kbv tft(TFT_CS, TFT_DC, TFT_RST); // creates screen object
+
+void displayInit() 
+{
+  tft.begin(); // start
+  tft.setRotation(0); // 0 = portrait
+  tft.fillScreen(0x0000); // fill with black
+}
+
+void drawText(int16_t x, int16_t y, uint8_t size, uint16_t color, const char *s) 
+{
+  tft.setCursor(x, y); // text at x,y coordinates
+  tft.setTextSize(size); // ex: 1 = 6x8, 3 = 18x24
+  tft.setTextColor(color); 
+  tft.print(s);
+}
+
+// title scren
+void showIdle() 
+{
+  tft.fillScreen(0x0000);
+  drawText(30, 120, 4, 0x07FF, "ARCADE"); // cyan font
+  drawText(30, 170, 4, 0xFFE0, "BOP-IT");  // yellow font
+  drawText(30, 300, 2, 0xFFFF, "Press RED button to start! :D"); // white font
+}
+
+// after start clears screen for a new game and shows score 0
+void showGameStart() 
+{
+  tft.fillScreen(0x0000); // black fill
+  showScore();
+}
+
+// current score
+void showScore() 
+{
+  tft.fillRect(0, 0, 320, 40, 0x0000); // wipe the old number first
+  drawText(10, 10, 3, 0xFFE0, "SCORE"); // yellow
+  tft.print(score);
+}
+
+// the command the player must do
+void showCommand(Command c) 
+{
+  const char *names[] = { "INSERT COIN!", "MOVE LEFT!", "MOVE RIGHT!", "FIRE!" };
+  tft.fillRect(0, 200, 320, 50, 0x0000); 
+  drawText(20, 210, 3, 0xFFFF, names[c]); // white 
+}
+
+// show score and YOU WIN / GAME OVER
+void showResult(bool won) 
+{
+  tft.fillScreen(0x0000);
+  if (won)
+  {
+    drawText(20, 120, 5, 0x07E0, "YOU WIN!"); // green font
+  }
+  else
+  {
+    drawText(20, 120, 5, 0xF800, "GAME OVER"); // red font
+  }
+  drawText(20, 220, 3, 0xFFE0, "Score: "); // yellow
+  tft.print(score);
+  drawText(20, 300, 2, 0xFFFF, "Press FIRE to play again");
+}
 
 //insert code
 
